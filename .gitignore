@@ -1,0 +1,85 @@
+# ===== Build output =====
+# CMake build trees (VS 2022 puts them in out/, manual builds often in build/)
+out/
+build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+
+# ===== Visual Studio =====
+.vs/
+*.vcxproj.user
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.aps
+*.ncb
+*.opendb
+*.sdf
+*.cachefile
+*.ipch
+ipch/
+enc_temp_folder/
+Debug/
+Release/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# ===== VS Code (if you ever use it) =====
+.vscode/
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# ===== Compiled / intermediate files =====
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.res
+*.tlog
+*.lastbuildstate
+*.log
+
+# ===== Compiled shaders (keep the .hlsl sources, ignore the compiled output) =====
+*.cso
+*.dxbc
+*.dxil
+
+# ===== vcpkg (if you add it later) =====
+vcpkg_installed/
+vcpkg/
+
+# ===== Package / dependency caches =====
+.cache/
+_deps/
+
+# ===== OS junk =====
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ===== Engine runtime output =====
+# Logs, crash dumps, screenshots and saved games produced while running.
+# Adjust the paths once you decide where the engine writes them.
+logs/
+*.dmp
+screenshots/
+saves/
+
+# ===== Keep these even though patterns above might match =====
+!CMakeLists.txt
+!CMakePresets.json
