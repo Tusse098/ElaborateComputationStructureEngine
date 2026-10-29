@@ -13,3 +13,4 @@ project ("ElaborateComputationStructureEngine")
 
 # Include sub-projects.
 add_subdirectory ("ElaborateComputationStructureEngine")
+add_subdirectory ("Sandbox")

@@ -1,4 +1,4 @@
-﻿// ElaborateComputationStructureEngine.cpp : Defines the entry point for the application.
+﻿// app.cpp : Defines the entry point for the application.
 //
 
 #include "ElaborateComputationStructureEngine.h"
