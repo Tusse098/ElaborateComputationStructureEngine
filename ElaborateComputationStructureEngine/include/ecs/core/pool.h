@@ -5,8 +5,14 @@
 
 namespace ecs {
 
+struct IPool {
+	virtual ~IPool() = default;
+	virtual bool has(Entity e) const = 0;
+	virtual void remove(Entity e) = 0;
+};
+
 template<typename T>
-class Pool {
+class Pool : public IPool {
 public:
 	void add(Entity e, T value) {
 		entities.push_back(e);
