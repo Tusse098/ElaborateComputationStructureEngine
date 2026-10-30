@@ -13,14 +13,11 @@ int main() {
     w.add(a, Position{ 1, 2 });
     w.add(a, Velocity{ 10, 0 });
     w.add(b, Position{ 3, 4 });
+    w.add(a, Size{ 1, 1 });
 
-    std::printf("a pos (%g,%g)  a has vel: %d b pos (%g, %g) b has vel: %d\n",
-        w.get<Position>(a).x, w.get<Position>(a).y, w.has<Velocity>(a),w.get<Position>(b).x, w.get<Position>(b).y, w.has<Velocity>(b));
-
-    w.get<Position>(b).x = 99;                 // get returns a reference, so this writes through
-    std::printf("b pos.x after edit: %g\n", w.get<Position>(b).x);
-
-    w.destroy(a);
-    std::printf("after destroy: a has pos: %d  a has vel: %d  b has pos: %d\n",
-        w.has<Position>(a), w.has<Velocity>(a), w.has<Position>(b));
+    w.each<Position, Velocity, Size>([](ecs::Entity e, Position& p, Velocity& v, Size& s) {
+        std::printf("entity %u at (%g,%g)\n", e, p.x, p.y);
+        std::printf("Velocity (%g, %g)\n", v.x, v.y);
+        std::printf("Size (%g, %g)\n", v.x, v.y);
+        });
 }

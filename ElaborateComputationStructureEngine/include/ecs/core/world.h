@@ -34,6 +34,25 @@ public:
         Pool<T>& p = pool<T>();
         p.remove(e);
     }
+    //template<typename T, typename Fn> void each(Fn fn) {
+    //    Pool<T>& p = pool<T>();
+    //    auto& owners = p.owners();
+    //    auto& data = p.data();
+    //    for (size_t i = 0; i < p.size(); ++i)
+    //        fn(owners[i], data[i]);
+
+    //}
+    template<typename T1, typename... Rest, typename Fn> void each(Fn fn) {
+        Pool<T1>& p1 = pool<T1>();
+        //Pool<Rest>& p2 = pool<Rest>();
+        // Take Pool with smallest dense then proceed.
+        auto& owners = p1.owners();
+        auto& data = p1.data();
+        for (size_t i = 0; i < p1.size(); ++i) {
+            Entity e = owners[i];
+            if((has<Rest>(e) && ...)) fn(e, data[i], get<Rest>(e)...);
+        }
+    }
 private:
     Entity nextEntity = 0;
     std::vector<std::unique_ptr<IPool>> pools;

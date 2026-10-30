@@ -47,7 +47,6 @@ public:
 	}
 
 	size_t size() const { return dense.size(); }
-
 	std::vector<Entity>&	owners() { return entities; }
 	std::vector<T>&			data() { return dense; }
 
@@ -55,7 +54,7 @@ private:
 	static constexpr uint32_t NONE = UINT32_MAX;
 	std::vector<Entity>		entities;	// The entities related to the data
 	std::vector<T>			dense;		// Where the data lives
-	std::vector<uint32_t>	sparse;
+	std::vector<uint32_t>	sparse;		// Entity -> dense position
 };
 
 }

@@ -9,4 +9,6 @@ struct Position { float x, y; };
 
 struct Velocity { float x, y; };
 
+struct Size { float x, y; };
+
 // TODO: Reference additional headers your program requires here.
