@@ -1,7 +1,9 @@
 // include/ecs/core/pool.h
 #pragma once
+
 #include <vector>
 #include <ecs/core/entity.h>"
+
 
 namespace ecs {
 
@@ -9,6 +11,8 @@ struct IPool {
 	virtual ~IPool() = default;
 	virtual bool has(Entity e) const = 0;
 	virtual void remove(Entity e) = 0;
+	virtual size_t size() const = 0;
+	virtual const std::vector<Entity>& owners() const = 0;
 };
 
 template<typename T>
@@ -46,8 +50,8 @@ public:
 		return false;
 	}
 
-	size_t size() const { return dense.size(); }
-	std::vector<Entity>&	owners() { return entities; }
+	size_t					size()	const override { return dense.size(); }
+	const std::vector<Entity>&	owners() const override { return entities; }
 	std::vector<T>&			data() { return dense; }
 
 private:
