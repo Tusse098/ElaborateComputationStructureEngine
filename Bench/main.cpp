@@ -58,7 +58,7 @@ static double checksum(ecs::World& w) {
 
 int main() {
     const int bigpool = 10'000'000;
-    const int smallpool = 10'000'000;
+    const int smallpool = 1'000;
     const int passes = 100;
     const float dt = 0.016f;
 
