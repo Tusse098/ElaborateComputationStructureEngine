@@ -37,7 +37,29 @@ public:
 
     template<typename... Pools, typename Fn> void each(Fn fn) {
         auto pools = std::make_tuple(&pool<Pools>()...);
+        /*
+         So we make a pool with Pool as the "component".
+         No first we make a tuple... what does that mean? But the tuple get an Entity as the value as we for some reason can use pools inside the get function?
+         But we know pools is a tyuple which is pretty much a list.
+         So this tuple pools is a kind of list with "&pool<Pools>()..." So this is the pool function, but what does it do here?
+         My guess is that it takes all the pools from the pack, one at a time(?) or parallel(?), and it returns a list of the adresses to each pool?  return static_cast<Pool<T>&>(*pools[id]);
+         Because we are casting from *pools[id] which should be a dereference of an element inside "std::vector<std::unique_ptr<IPool>>".
+         Which means it is the value (Or is it the reference) of an IPool.
+         So we are casting from this IPool to Pool<T>&>. Which is a reference of a Pool.
+         So we are getting a tuple of all the pools where the Pools pack values are the type.
+         That makes sense, that is literally what we want.
+         Nope that is not it, it is giving us the Entities of each pool? Huh? Is it not? Because we need to send an Entity insnide the get function down below, but it doesn't seem to be an Entity...
 
+         Now what the fuck is this?
+         const IPool* lead = std::min(
+            { static_cast<const IPool*>(std::get<Pool<Pools>*>(pools))... },
+            [](const IPool* a, const IPool* b) { return a->size() < b->size(); });
+
+         Yeah I have no idea.
+         It seems like it is using a callback on the bottom.
+         Ahh nevermind, we again are using the pack where it will take all the values from the pack in the get get<Pool<Pools>*>(pools). 
+
+        */
         const IPool* lead = std::min(
             { static_cast<const IPool*>(std::get<Pool<Pools>*>(pools))... },
             [](const IPool* a, const IPool* b) { return a->size() < b->size(); });
