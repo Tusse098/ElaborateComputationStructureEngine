@@ -8,15 +8,48 @@ namespace ecs {
 
 class World {
 public:
-    Entity  create() {
-        return nextEntity++;      // returns 0, then 1, then 2...
-    }
-    void    destroy(Entity e) {
-        for (auto& p : pools)
-        {
-            if (p) p->remove(e);
+
+    Entity create() {
+        // If we have any free spots
+        // Take the value of the 'slot' furthest back
+        // Remove that slot from the freelist
+        // Check that slot in the generations list
+        // Make a new Entity with that generations value from the generations list, and the index of the freelist slot.
+        if(!freelist.empty()){
+            uint32_t idx = freelist.back();
+            freelist.pop_back();
+            uint32_t gen = generations[idx];
+            Entity e = ecs::make(idx, gen);
+            return e;
         }
+        // Otherwise
+        // Open a new slot in the generation (As it is the one keeping track of all the existing Entities)
+        // Take the index of the last spot and give it gen 0
+        generations.push_back(0);
+        Entity e = ecs::make(generations.size() - 1, 0);
+        return e;
     }
+
+    // If the generation in the Entity is the same as in the index of the generation of the same thing, then it is alive.
+    bool alive(Entity e) const {
+        return ecs::generation(e) == generations[ecs::index(e)];
+    }
+
+    void destroy(Entity e) {
+        if (!alive(e)) return;
+        // Take the generation and index from this Entity
+        // Increment the generation in generations
+        // Open the slot in freelist
+        // Remove all components connected to the Entity
+        uint32_t gen = ecs::generation(e);
+        uint32_t idx = ecs::index(e);
+
+        generations[idx]++;
+        freelist.push_back(idx);
+
+        for (auto& p : pools) if (p) p->remove(e);
+    }
+
     template<typename T> T& add(Entity e, T v) {
         Pool<T>& p = pool<T>();
         p.add(e, v);
@@ -74,6 +107,11 @@ public:
 
 private:
     Entity nextEntity = 0;
+    
+    std::vector<uint8_t> generations;
+
+    std::vector<uint32_t> freelist;
+
     std::vector<std::unique_ptr<IPool>> pools;
     template<typename T> Pool<T>& pool() {
         uint32_t id = typeId<T>();

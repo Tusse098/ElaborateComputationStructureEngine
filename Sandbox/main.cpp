@@ -20,4 +20,6 @@ int main() {
         std::printf("Velocity (%g, %g)\n", v.x, v.y);
         std::printf("Size (%g, %g)\n", v.x, v.y);
         });
+
+
 }

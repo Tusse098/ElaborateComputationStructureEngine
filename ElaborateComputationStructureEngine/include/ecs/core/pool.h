@@ -2,7 +2,8 @@
 #pragma once
 
 #include <vector>
-#include <ecs/core/entity.h>"
+#include <ecs/core/entity.h>
+#include <cassert>
 
 
 namespace ecs {
@@ -18,35 +19,38 @@ struct IPool {
 template<typename T>
 class Pool : public IPool {
 public:
+
 	void add(Entity e, T value) {
+		assert(!has(e) && "component added twice to the same entity");
+		uint32_t idx = index(e);
 		entities.push_back(e);
 		dense.push_back(value);
 
-		if (e >= sparse.size()) sparse.resize(e + 1, NONE);
-		sparse.at(e) = entities.size() - 1;
+		if (idx >= sparse.size()) sparse.resize(idx + 1, NONE);
+		sparse.at(idx) = entities.size() - 1;
 	}
 
-	void remove(Entity e) {
+	void remove (Entity e) override {
 		if (!has(e)) return;
-		uint32_t idx = sparse[e];
+		uint32_t idx = sparse[index(e)];
 		uint32_t last = static_cast<uint32_t>(size() - 1);
 
 		dense[idx] = dense[last];
 		entities[idx] = entities[last];
-		sparse[entities[idx]] = idx;
+		sparse[index(entities[idx])] = idx;
 
 		dense.pop_back();
 		entities.pop_back();
-		sparse[e] = NONE;
+		sparse[index(e)] = NONE;
 	}
 
 	T& get(Entity e) {
-		return dense[sparse[e]];
+		return dense[sparse[index(e)]];
 	}
 
-	bool has(Entity e) const {
-		if (e >= sparse.size()) return false;
-		if (sparse[e] != NONE) return true;
+	 bool has(Entity e) const override {
+		if (index(e) >= sparse.size()) return false;
+		if (sparse[index(e)] != NONE) return true;
 		return false;
 	}
 
