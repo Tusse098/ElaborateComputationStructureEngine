@@ -13,6 +13,10 @@ namespace ecs {
     constexpr Entity make(uint32_t idx, uint32_t gen) {
         return ((gen << INDEX_BITS) | idx);
     }
+
+    // Kept in the header deliberately: a static local in an inline function is
+    // one object across all translation units, so the counter is shared.
+    // (This would break across a DLL boundary; the engine is a static lib.)
     inline uint32_t nextTypeId() {
         static uint32_t counter = 0;   // one shared counter for the whole program
         return counter++;              // hand out 0, then 1, then 2...

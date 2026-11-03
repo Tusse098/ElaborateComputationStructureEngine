@@ -12,6 +12,7 @@
 # TODO: Add tests and install targets if needed.
 
 add_executable(Sandbox
-    main.cpp
+    src/main.cpp
 )
 target_link_libraries(Sandbox PRIVATE ECSEngine)
+target_include_directories(Sandbox PRIVATE include)
