@@ -12,7 +12,9 @@ endif()
 
 project ("ElaborateComputationStructureEngine")
 
+enable_testing()
 # Include sub-projects.
 add_subdirectory ("ElaborateComputationStructureEngine")
 add_subdirectory ("Sandbox")
 add_subdirectory ("Bench")
+add_subdirectory ("Tests")
