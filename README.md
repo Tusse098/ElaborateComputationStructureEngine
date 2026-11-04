@@ -135,6 +135,23 @@ consumers (Sandbox, Bench, Tests) in one repo, so the trade runs the other
 way: local recompiles and clean circular dependencies matter more than
 single-include convenience.
 
+### EntityCommandBuffer
+
+Structural changes (`add`, `remove`, `destroy`) are not allowed inside `each`: they reorder the arrays being iterated. Record them instead and apply after:
+
+```cpp
+w.each<Health>([&](ecs::Entity e, Health& h) {
+    if (h.hp <= 0) w.defer().destroy(e);
+});
+w.flush();
+```
+
+`create()` stays immediate. It never touches a pool, so it's safe anywhere.
+
+Commands are stored as callables and replayed in recorded order. The world owns one buffer; `flush()` is called by whoever drives the loop.
+EnTT made the opposite choice. It has no buffer: views iterate backwards, so destroying the current entity is safe, but destroying any other entity is not. A nuanced rule the engine can't enforce.
+I chose to embrace the buffer. One rule, one tool, nothing that silently corrupts. The cost is an allocation per command, which is cheap next to iteration. Reverse iteration can be added later if a profile asks for it. For now, simple wins.
+
 ## Tests
 
 Using Catch2 v3. I recommend installing Catch2 via vcpkg to make it easy for yourself.

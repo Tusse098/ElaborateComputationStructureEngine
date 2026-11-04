@@ -67,17 +67,22 @@ int main() {
         ecs::World w;
         double setupMs, iterMs;
         { Timer t; fill(w, bigpool, smallpool); setupMs = t.ms(); }
+        long long commands = 0;
         {
             Timer t;
             for (int i = 0; i < passes; i++) {
-                w.each<Position, Velocity>([&](ecs::Entity, Position& p, const Velocity& v) {
-                    p.x += v.x * dt;
-                    p.y += v.y * dt;
+                w.each<Position, Velocity>([&](ecs::Entity e, Position&, Velocity&) {
+                    w.defer().destroy(e);
+                    ecs::Entity n = w.create();                  // immediate: safe inside each
+                    w.defer().add(n, Position{ 0, 0 });
+                    w.defer().add(n, Velocity{ 1, 0.5f });
+                    commands += 3;
                     });
+                w.flush();
             }
             iterMs = t.ms();
         }
-        results.push_back({ "ECS", bigpool, smallpool, bigpool, passes, setupMs, iterMs, checksum(w) });
+        results.push_back({ "ECS, churn via ECB", bigpool, smallpool, commands / passes, passes, setupMs, iterMs, checksum(w) });
     }
 
     // OOP, Unity-style: shuffled objects, components are separate heap objects, visits every object
