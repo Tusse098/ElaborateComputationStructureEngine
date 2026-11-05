@@ -85,7 +85,7 @@ int main() {
         results.push_back({ "ECS, churn via ECB", bigpool, smallpool, commands / passes, passes, setupMs, iterMs, checksum(w) });
     }
 
-    // OOP, Unity-style: shuffled objects, components are separate heap objects, visits every object
+    // OOP, churn: find every object with a Velocity, then destroy and respawn its components
     {
         std::vector<GameObject*> objs;
         objs.reserve(bigpool);
@@ -101,22 +101,30 @@ int main() {
             setupMs = t.ms();
         }
 
-        std::vector<GameObject*> inOrder = objs;                    // for an order-independent checksum
+        std::vector<GameObject*> inOrder = objs;
         std::shuffle(objs.begin(), objs.end(), std::mt19937{ 42 });
 
+        std::vector<GameObject*> dead;
+        dead.reserve(smallpool);
         {
             Timer t;
-            for (int i = 0; i < passes; i++)
-                for (auto* o : objs) o->update(dt);
+            for (int i = 0; i < passes; i++) {
+                dead.clear();
+                for (auto* o : objs) if (o->vel) dead.push_back(o);   // the query: scan all 10M
+                for (auto* o : dead) {                                 // the flush: kill + respawn
+                    delete o->vel; delete o->pos;
+                    o->pos = new Position{ 0, 0 };
+                    o->vel = new Velocity{ 1, 0.5f };
+                }
+            }
             iterMs = t.ms();
         }
 
         double sum = 0;
         for (auto* o : inOrder) sum += o->pos->x;
-        results.push_back({ "OOP, Unity-style (shuffled ptr)", bigpool, smallpool, bigpool, passes, setupMs, iterMs, sum });
+        results.push_back({ "OOP, churn", bigpool, smallpool, smallpool, passes, setupMs, iterMs, sum });
 
         for (auto* o : objs) { delete o->vel; delete o->pos; delete o; }
     }
-
     printTable();
 }
