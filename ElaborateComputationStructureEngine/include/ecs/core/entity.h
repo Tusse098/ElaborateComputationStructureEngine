@@ -7,6 +7,7 @@ namespace ecs {
     constexpr uint32_t INDEX_BITS = 24;
     constexpr uint32_t INDEX_MASK = (1u << INDEX_BITS) - 1;
 
+    constexpr Entity null = INDEX_MASK;
 
     constexpr uint32_t index(Entity e) { return e & INDEX_MASK;}
     constexpr uint32_t generation(Entity e) { return e >> INDEX_BITS; }

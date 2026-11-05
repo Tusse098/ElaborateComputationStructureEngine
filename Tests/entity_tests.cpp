@@ -13,3 +13,13 @@ TEST_CASE("Entity: index and generation don't bleed into each other") {
     REQUIRE(ecs::index(e) == ecs::INDEX_MASK);
     REQUIRE(ecs::generation(e) == 255);
 }
+
+TEST_CASE("Entity: null is not the zero entity", "[entity]") {
+    REQUIRE(ecs::null != ecs::Entity{});
+    REQUIRE(ecs::index(ecs::null) == ecs::INDEX_MASK);
+    REQUIRE(ecs::generation(ecs::null) == 0);
+}
+
+TEST_CASE("Entity: null survives a round-trip through make", "[entity]") {
+    REQUIRE(ecs::make(ecs::index(ecs::null), ecs::generation(ecs::null)) == ecs::null);
+}

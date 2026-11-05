@@ -91,3 +91,32 @@ TEST_CASE("World: commands recorded inside each apply after flush") {
     w.each<Position>([&](ecs::Entity, Position&) { ++remaining; });
     REQUIRE(remaining == 0);
 }
+
+TEST_CASE("World: null is never alive", "[world][null]") {
+    ecs::World w;
+    REQUIRE_FALSE(w.alive(ecs::null));          // empty world
+
+    for (int i = 0; i < 100; ++i) w.create();
+    REQUIRE_FALSE(w.alive(ecs::null));          // populated world
+}
+
+TEST_CASE("World: a handle this world never issued is not alive", "[world][null]") {
+    ecs::World w;
+    w.create();                                 // one slot exists
+    REQUIRE_FALSE(w.alive(ecs::make(50, 0)));   // slot 50 doesn't
+}
+
+TEST_CASE("World: default-initialised reference means nobody", "[world][null]") {
+    struct Follow { ecs::Entity target = ecs::null; };
+    ecs::World w;
+    auto a = w.create();
+    w.add(a, Follow{});
+    REQUIRE_FALSE(w.alive(w.get<Follow>(a).target));
+}
+
+TEST_CASE("World: destroying null is a no-op", "[world][null]") {
+    ecs::World w;
+    auto a = w.create();
+    w.destroy(ecs::null);                       // must not assert or touch anything
+    REQUIRE(w.alive(a));
+}

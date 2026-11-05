@@ -9,13 +9,15 @@ namespace ecs {
             freelist.pop_back();
             return make(idx, generations[idx]);
         }
+        assert(generations.size() < INDEX_MASK && "entity limit reached");
         generations.push_back(0);
         return make(static_cast<uint32_t>(generations.size() - 1), 0);
     }
 
     bool World::alive(Entity e) const {
         uint32_t idx = index(e);
-        assert(idx < generations.size() && "alive() called with a handle this world never issued");
+        if (idx >= generations.size()) return false;
+
         return generations[idx] == generation(e);
     }
 
