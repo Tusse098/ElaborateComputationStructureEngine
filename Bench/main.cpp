@@ -12,7 +12,7 @@
 struct Result {
     const char* name;
     int big, small;
-    long long visited;      // entities the iterate loop actually touched per pass
+    long long perPass;      // unit of work per pass: entities visited, or entities churned
     int passes;
     double setupMs, iterMs, checksum;
 };
@@ -34,11 +34,11 @@ static void printTable() {
 
     row("Entities (big pool)", [](const Result& r) { std::printf("%d", r.big); });
     row("With Velocity (small)", [](const Result& r) { std::printf("%d", r.small); });
-    row("Visited per pass", [](const Result& r) { std::printf("%lld", r.visited); });
+    row("Churned per pass", [](const Result& r) { std::printf("%lld", r.perPass); });
     row("Setup (ms)", [](const Result& r) { std::printf("%.2f", r.setupMs); });
     row("Setup (ns/entity)", [](const Result& r) { std::printf("%.2f", r.setupMs * 1e6 / r.big); });
     row("Iterate (ms)", [](const Result& r) { std::printf("%.2f", r.iterMs); });
-    row("Iterate (ns/visited)", [](const Result& r) { std::printf("%.2f", r.iterMs * 1e6 / ((double)r.visited * r.passes)); });
+    row("ns / entity churned", [](const Result& r) { std::printf("%.2f", r.iterMs * 1e6 / ((double)r.perPass * r.passes)); });
     row("Checksum", [](const Result& r) { std::printf("%.6f", r.checksum); });
 }
 
@@ -60,32 +60,56 @@ int main() {
     const int bigpool = 10'000'000;
     const int smallpool = 1'000;
     const int passes = 100;
-    const float dt = 0.016f;
 
-    // ECS, bigger pool first: each<Position, Velocity> walks every Position
+    // ECS, churn via ECB: destroy every entity with Velocity and respawn it, all through the buffer
     {
         ecs::World w;
         double setupMs, iterMs;
         { Timer t; fill(w, bigpool, smallpool); setupMs = t.ms(); }
-        long long commands = 0;
         {
             Timer t;
             for (int i = 0; i < passes; i++) {
                 w.each<Position, Velocity>([&](ecs::Entity e, Position&, Velocity&) {
                     w.defer().destroy(e);
-                    ecs::Entity n = w.create();                  // immediate: safe inside each
+                    ecs::Entity n = w.create();                  // immediate: never touches a pool
                     w.defer().add(n, Position{ 0, 0 });
                     w.defer().add(n, Velocity{ 1, 0.5f });
-                    commands += 3;
                     });
                 w.flush();
             }
             iterMs = t.ms();
         }
-        results.push_back({ "ECS, churn via ECB", bigpool, smallpool, commands / passes, passes, setupMs, iterMs, checksum(w) });
+        results.push_back({ "ECS, churn via ECB", bigpool, smallpool, smallpool, passes, setupMs, iterMs, checksum(w) });
     }
 
-    // OOP, churn: find every object with a Velocity, then destroy and respawn its components
+    // ECS, churn direct: same work, no buffer. Collect inside each, apply after it.
+    // Control column: ECB minus this is the buffer's own cost.
+    {
+        ecs::World w;
+        double setupMs, iterMs;
+        { Timer t; fill(w, bigpool, smallpool); setupMs = t.ms(); }
+        std::vector<ecs::Entity> dead;
+        dead.reserve(smallpool);
+        {
+            Timer t;
+            for (int i = 0; i < passes; i++) {
+                dead.clear();
+                w.each<Position, Velocity>([&](ecs::Entity e, Position&, Velocity&) {
+                    dead.push_back(e);
+                    });
+                for (ecs::Entity e : dead) {
+                    w.destroy(e);
+                    ecs::Entity n = w.create();
+                    w.add(n, Position{ 0, 0 });
+                    w.add(n, Velocity{ 1, 0.5f });
+                }
+            }
+            iterMs = t.ms();
+        }
+        results.push_back({ "ECS, churn direct", bigpool, smallpool, smallpool, passes, setupMs, iterMs, checksum(w) });
+    }
+
+    // OOP, churn: scan every object for a Velocity, then delete and new both components on each hit
     {
         std::vector<GameObject*> objs;
         objs.reserve(bigpool);
@@ -101,7 +125,7 @@ int main() {
             setupMs = t.ms();
         }
 
-        std::vector<GameObject*> inOrder = objs;
+        std::vector<GameObject*> inOrder = objs;                    // for an order-independent checksum
         std::shuffle(objs.begin(), objs.end(), std::mt19937{ 42 });
 
         std::vector<GameObject*> dead;
@@ -126,5 +150,6 @@ int main() {
 
         for (auto* o : objs) { delete o->vel; delete o->pos; delete o; }
     }
+
     printTable();
 }
