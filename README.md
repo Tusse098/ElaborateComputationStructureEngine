@@ -166,8 +166,8 @@ Test names are prefixed by unit (`Entity:`, `Pool:`, `World:`) and tagged the sa
 
 ## Roadmap
 
-1. **Command buffer** - record `add`/`remove`/`destroy` during `each`, apply after. Needed for any system that spawns or kills.
-2. **Null entity** - a reserved handle that can never be alive.
+1. **Command buffer** - record `add`/`remove`/`destroy` during `each`, apply after. Needed for any system that spawns or kills. [x]
+2. **Null entity** - a reserved handle that can never be alive. [x]
 3. **Exclusion and tags** - `each<A, B>` excluding `C`; zero-size tag components.
 4. **Systems** - a function list the world runs each frame.
 

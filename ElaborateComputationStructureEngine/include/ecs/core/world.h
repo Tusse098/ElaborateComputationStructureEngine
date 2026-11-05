@@ -10,6 +10,7 @@
 #include <ecs/core/entity.h>
 #include <ecs/core/pool.h>
 #include <ecs/core/entityCommandBuffer.h>
+#include <ecs/core/query.h>
 
 namespace ecs {
 
@@ -59,19 +60,25 @@ namespace ecs {
         //   3. walk the lead's entities and probe the other pools for each one.
         // Argument order does not matter. Structural changes (add/remove/destroy)
         // inside fn are not allowed; record them with defer() and flush() after.
-        template<typename... Pools, typename Fn>
-        void each(Fn fn) {
-            auto ps = std::make_tuple(&pool<Pools>()...);
+        template<typename... Cs, typename... Xs, typename Fn>
+        void each(exclude_t<Xs...>, Fn fn) {
+            auto ps = std::make_tuple(&pool<Cs>()...);
+            auto xs = std::make_tuple(&pool<Xs>()...);
 
             const IPool* lead = std::min(
-                { static_cast<const IPool*>(std::get<Pool<Pools>*>(ps))... },
+                { static_cast<const IPool*>(std::get<Pool<Cs>*>(ps))... },
                 [](const IPool* a, const IPool* b) { return a->size() < b->size(); });
 
             for (Entity e : lead->owners()) {
-                if ((std::get<Pool<Pools>*>(ps)->has(e) && ...))
-                    fn(e, std::get<Pool<Pools>*>(ps)->get(e)...);
+                if ((std::get<Pool<Cs>*>(ps)->has(e) && ...) &&
+                    (!std::get<Pool<Xs>*>(xs)->has(e) && ...))
+                        fn(e, std::get<Pool<Cs>*>(ps)->get(e)...);
+                
             }
         }
+
+        template<typename... Cs, typename Fn>
+        void each(Fn fn) { each<Cs...>(exclude<>, fn); }
 
         // --- deferred structural changes ---------------------------------------
 
