@@ -9,7 +9,7 @@
 
 add_library(ECSEngine STATIC
 	src/core/world.cpp
- "src/core/entityCommandBuffer.cpp" "include/ecs/core/query.h")
+ "src/core/entityCommandBuffer.cpp" "include/ecs/core/query.h" "src/debugging/debug.cpp" "src/core/scheduler.cpp" "include/ecs/fwd.h")
 
 target_include_directories(ECSEngine PUBLIC include)
 target_link_directories(ECSEngine PUBLIC d3d11 dxgi d3dcompiler)

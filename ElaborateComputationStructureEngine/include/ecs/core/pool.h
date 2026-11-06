@@ -14,6 +14,9 @@ namespace ecs {
 		virtual void remove(Entity e) = 0;
 		virtual size_t size() const = 0;
 		virtual const std::vector<Entity>& owners() const = 0;
+
+		virtual const char* name() const = 0;
+		virtual bool validate() const = 0;
 	};
 
 	template<typename T>
@@ -57,6 +60,22 @@ namespace ecs {
 		size_t					size()	const override { return dense.size(); }
 		const std::vector<Entity>&	owners() const override { return entities; }
 		std::vector<T>&			data() { return dense; }
+
+
+		// Mostly for debugging purposes
+		const char* name() const override { return typeid(T).name(); }
+
+		// Every invariant the sparse set relies on. A failure means an earlier
+		// add/remove corrupted the pool.
+		bool validate() const override {
+			if (entities.size() != dense.size()) return false;
+			for (uint32_t i = 0; i < entities.size(); ++i) {
+				uint32_t slot = index(entities[i]);
+				if (slot >= sparse.size()) return false;   // owner not tracked
+				if (sparse[slot] != i)     return false;   // sparse and dense disagree
+			}
+			return true;
+		}
 
 	private:
 		static constexpr uint32_t NONE = UINT32_MAX;

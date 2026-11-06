@@ -11,4 +11,7 @@ struct Velocity { float x, y; };
 
 struct Size { float x, y; };
 
+struct Frozen { };
+struct Lifetime { int time;  };
+
 // TODO: Reference additional headers your program requires here.

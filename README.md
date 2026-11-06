@@ -168,7 +168,15 @@ Test names are prefixed by unit (`Entity:`, `Pool:`, `World:`) and tagged the sa
 
 1. **Command buffer** - record `add`/`remove`/`destroy` during `each`, apply after. Needed for any system that spawns or kills. [x]
 2. **Null entity** - a reserved handle that can never be alive. [x]
-3. **Exclusion and tags** - `each<A, B>` excluding `C`; zero-size tag components.
+3. **Exclusion and tags** - `each<A, B>` excluding `C`; zero-size tag components. [x]
 4. **Systems** - a function list the world runs each frame.
+5. **Resources** - world-owned singletons that aren't components: Time,
+   Input, a random generator. Systems read them by type.
+6. **Window and 2D rendering** - open a window, draw sprites from
+   `Position` + `Sprite`. The render system is just another system that
+   reads components.
+7. **Input** - keyboard/mouse as a resource; a controllable entity.
+8. **A tiny game** - the sandbox loop with a window around it. Everything
+   after this is driven by what the game needs.
 
 I am planning on updating this as I go. I am also writing some documentation inside Obsidian which I will set up to have inside another git repo later.

@@ -85,6 +85,11 @@ namespace ecs {
         EntityCommandBuffer& defer();
         void flush();
 
+        template<typename Fn>
+        void forEachPool(Fn fn) const {
+            for (auto& p : pools) if (p) fn(*p);
+        }
+
     private:
         template<typename T>
         Pool<T>& pool() {

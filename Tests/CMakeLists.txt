@@ -2,7 +2,7 @@
 
 add_executable(ecs_tests
     entity_tests.cpp
-    world_tests.cpp)
+    world_tests.cpp "scheduler_tests.cpp")
 target_link_libraries(ecs_tests PRIVATE
     ECSEngine   # whatever your engine target is called
     Catch2::Catch2WithMain)

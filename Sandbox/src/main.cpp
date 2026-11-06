@@ -2,33 +2,28 @@
 #include <ecs/core/pool.h>
 #include <cstdio>
 #include <core/components.h>
+#include <ecs/debugging/debug.h>
+#include <ecs/core/entity.h>
+#include <ecs/core/scheduler.h>
+#include <chrono>
+#include "./core/systems/all.h"
 
+using Clock = std::chrono::steady_clock;
+auto seconds = [](auto d) { return std::chrono::duration<float>(d).count(); };
 
-
+#define TOTALTICKS 1000
 int main() {
     ecs::World w;
-    ecs::Entity a = w.create();
-    ecs::Entity b = w.create();
+    ecs::Scheduler scheduler;
+    game::addGameplaySystems(scheduler);
 
-    w.defer().add(a, Position{1, 2});
-    w.defer().add(a, Velocity{ 10, 0 });
-    w.defer().add(b, Position{ 3, 4 });
-    w.defer().add(a, Size{ 1, 1 });
+    for (int tick = 0; tick < 1000; ++tick) {
+        scheduler.tick(w, 1.0f / 60);
+        assert(ecs::debug::validate(w));
+    }
 
-    std::printf("\nShould not print a's components\n");
-    w.each<Position, Velocity, Size>([](ecs::Entity e, Position& p, Velocity& v, Size& s) {
-        std::printf("entity (id: %u, gen: %u) at (%g,%g)\n", ecs::index(e), ecs::generation(e), p.x, p.y);
-        std::printf("Velocity (%g, %g)\n", v.x, v.y);
-        std::printf("Size (%g, %g)\n", s.x, s.y);
-        });
-    w.flush();
-
-    std::printf("\nShould print a's components\n");
-    w.each<Position, Velocity, Size>([](ecs::Entity e, Position& p, Velocity& v, Size& s) {
-        std::printf("entity (id: %u, gen: %u) at (%g,%g)\n", ecs::index(e), ecs::generation(e), p.x, p.y);
-        std::printf("Velocity (%g, %g)\n", v.x, v.y);
-        std::printf("Size (%g, %g)\n", s.x, s.y);
-        });
-
-
+    ecs::debug::printSummary(w);
+    // expect: Position 12, Velocity 12, Lifetime 12, Frozen 4
 }
+
+
