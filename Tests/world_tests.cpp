@@ -141,3 +141,35 @@ TEST_CASE("World: exclude skips entities that have the excluded component", "[wo
     std::sort(seen.begin(), seen.end());
     REQUIRE(seen == std::vector{ moving, frozen });
 }
+
+TEST_CASE("World: resource round-trips", "[world][resource]") {
+    struct Gravity { float y; };
+    ecs::World w;
+    w.setResource(Gravity{ -9.8f });
+    REQUIRE(w.resource<Gravity>().y == -9.8f);
+}
+
+TEST_CASE("World: hasResource is false before set and true after", "[world][resource]") {
+    struct Score { int v; };
+    ecs::World w;
+    REQUIRE_FALSE(w.hasResource<Score>());
+    w.setResource(Score{});
+    REQUIRE(w.hasResource<Score>());
+}
+
+TEST_CASE("World: resource returns the same object every time", "[world][resource]") {
+    struct Time { float elapsed; };
+    ecs::World w;
+    w.setResource(Time{});
+    w.resource<Time>().elapsed = 1.5f;
+    REQUIRE(w.resource<Time>().elapsed == 1.5f);          // mutation persisted: it's a reference
+    REQUIRE(&w.resource<Time>() == &w.resource<Time>());  // literally the same address
+}
+
+TEST_CASE("World: setResource twice overwrites", "[world][resource]") {
+    struct Score { int v; };
+    ecs::World w;
+    w.setResource(Score{ 1 });
+    w.setResource(Score{ 2 });
+    REQUIRE(w.resource<Score>().v == 2);
+}

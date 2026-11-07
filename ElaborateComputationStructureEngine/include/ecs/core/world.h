@@ -86,9 +86,9 @@ namespace ecs {
         template<typename T>
         T& setResource(T v) {
             uint32_t id = typeId<T>();
-            if (id >= resource.size()) resources.resize(id + 1);
+            if (id >= resources.size()) resources.resize(id + 1);
             resources[id] = std::make_unique<Resource<T>>(std::move(v));
-            return static_cast<Resource<T>>(*resource[id]).value;
+            return static_cast<Resource<T>&>(*resources[id]).value;
 
         }
 
