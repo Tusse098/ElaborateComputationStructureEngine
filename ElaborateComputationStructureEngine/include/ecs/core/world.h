@@ -11,6 +11,7 @@
 #include <ecs/core/pool.h>
 #include <ecs/core/entityCommandBuffer.h>
 #include <ecs/core/query.h>
+#include <ecs/core/resource.h>
 
 namespace ecs {
 
@@ -80,6 +81,30 @@ namespace ecs {
         template<typename... Cs, typename Fn>
         void each(Fn fn) { each<Cs...>(exclude<>, fn); }
 
+        // --- Resources ---------------------------------------------------------
+
+        template<typename T>
+        T& setResource(T v) {
+            uint32_t id = typeId<T>();
+            if (id >= resource.size()) resources.resize(id + 1);
+            resources[id] = std::make_unique<Resource<T>>(std::move(v));
+            return static_cast<Resource<T>>(*resource[id]).value;
+
+        }
+
+        template<typename T>
+        T& resource() {
+            uint32_t id = typeId<T>();
+            assert(id < resources.size() && resources[id] && "resource not set");
+            return static_cast<Resource<T>&>(*resources[id]).value;
+        }
+
+        template<typename T>
+        bool hasResource() const {
+            uint32_t id = typeId<T>();
+            return id < resources.size() && resources[id] != nullptr;
+        }
+
         // --- deferred structural changes ---------------------------------------
 
         EntityCommandBuffer& defer();
@@ -99,10 +124,11 @@ namespace ecs {
             return static_cast<Pool<T>&>(*pools[id]);
         }
 
-        std::vector<uint8_t>                 generations;  // current generation per slot
-        std::vector<uint32_t>                freelist;     // slots available for reuse
-        std::vector<std::unique_ptr<IPool>>  pools;        // indexed by typeId<T>()
-        EntityCommandBuffer                  ECB;
+        std::vector<uint8_t>                    generations;  // current generation per slot
+        std::vector<uint32_t>                   freelist;     // slots available for reuse
+        std::vector<std::unique_ptr<IPool>>     pools;        // indexed by typeId<T>()
+        std::vector<std::unique_ptr<IResource>> resources;        // indexed by typeId<T>()
+        EntityCommandBuffer                     ECB;
     };
 
 }
