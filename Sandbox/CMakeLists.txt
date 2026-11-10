@@ -14,5 +14,5 @@
 add_executable(Sandbox
     src/main.cpp
  "src/core/systems/movement.h" "src/core/systems/movement.cpp" "src/core/systems/all.cpp" "src/core/systems/spawner.h" "src/core/systems/spawner.cpp" "src/core/systems/all.h")
-target_link_libraries(Sandbox PRIVATE ECSEngine)
+target_link_libraries(Sandbox PRIVATE ECSPlatform)
 target_include_directories(Sandbox PRIVATE include)

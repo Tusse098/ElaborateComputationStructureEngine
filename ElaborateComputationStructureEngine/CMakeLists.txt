@@ -1,21 +1,18 @@
-﻿# CMakeList.txt : CMake project for ElaborateComputationStructureEngine, include source and define
-# project specific logic here.
-#
-
-
-
-# Add source to this project's executable.
-# add_executable (ElaborateComputationStructureEngine "ElaborateComputationStructureEngine.cpp" "ElaborateComputationStructureEngine.h")
-
+﻿# --- core: no SDL, ever ---------------------------------------------------
 add_library(ECSEngine STATIC
-	src/core/world.cpp
- "src/core/entityCommandBuffer.cpp" "include/ecs/core/query.h" "src/debugging/debug.cpp" "src/core/scheduler.cpp" "include/ecs/fwd.h" "include/ecs/core/resource.h")
-
+    src/core/world.cpp
+    src/core/entityCommandBuffer.cpp
+    src/core/scheduler.cpp
+    src/debugging/debug.cpp "include/ecs/platform/window.h")
 target_include_directories(ECSEngine PUBLIC include)
-target_link_directories(ECSEngine PUBLIC d3d11 dxgi d3dcompiler)
+target_compile_features(ECSEngine PUBLIC cxx_std_20)
 
-#if (CMAKE_VERSION VERSION_GREATER 3.12)
-#  set_property(TARGET ElaborateComputationStructureEngine PROPERTY CXX_STANDARD 20)
-#endif()
+# --- platform: window, events, time; the only target that sees SDL ---------
+find_package(SDL3 CONFIG REQUIRED)
 
-# TODO: Add tests and install targets if needed.
+add_library(ECSPlatform STATIC
+    src/platform/window.cpp "include/ecs/platform/window.h")
+target_include_directories(ECSPlatform PUBLIC include)
+target_link_libraries(ECSPlatform
+    PUBLIC ECSEngine
+    PUBLIC SDL3::SDL3)
