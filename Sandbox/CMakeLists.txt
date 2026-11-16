@@ -10,9 +10,19 @@
 #endif()
 
 # TODO: Add tests and install targets if needed.
-
+find_package(SDL3 REQUIRED CONFIG)
 add_executable(Sandbox
     src/main.cpp
  "src/core/systems/movement.h" "src/core/systems/movement.cpp" "src/core/systems/all.cpp" "src/core/systems/spawner.h" "src/core/systems/spawner.cpp" "src/core/systems/all.h")
-target_link_libraries(Sandbox PRIVATE ECSPlatform)
+target_link_libraries(Sandbox
+    PRIVATE ECSPlatform
+)
+target_link_libraries(Sandbox
+    PUBLIC SDL3::SDL3
+)
+
+add_custom_command(TARGET Sandbox POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:Sandbox>/assets)
+
 target_include_directories(Sandbox PRIVATE include)
