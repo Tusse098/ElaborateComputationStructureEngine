@@ -1,3 +1,10 @@
-// src/platform/window.cpp  — the only file that knows what SDL_Window really is
+// src/platform/window.cpp
 #include <ecs/platform/window.h>
-#include <SDL3/SDL.h>
+#include "osWindow.h"
+#include <ecs/core/world.h>
+
+namespace ecs::platform {
+
+	// pollWindows and applyWindows go here.
+
+}
