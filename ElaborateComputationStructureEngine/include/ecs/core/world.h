@@ -36,7 +36,7 @@ namespace ecs {
         template<typename T>
         T& add(Entity e, T v) {
             Pool<T>& p = pool<T>();
-            p.add(e, v);
+            p.add(e, std::move(v));
             return p.get(e);
         }
 

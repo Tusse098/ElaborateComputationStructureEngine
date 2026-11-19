@@ -17,9 +17,6 @@ add_executable(Sandbox
 target_link_libraries(Sandbox
     PRIVATE ECSPlatform
 )
-target_link_libraries(Sandbox
-    PUBLIC SDL3::SDL3
-)
 
 add_custom_command(TARGET Sandbox POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

@@ -27,7 +27,7 @@ namespace ecs {
 			assert(!has(e) && "component added twice to the same entity");
 			uint32_t idx = index(e);
 			entities.push_back(e);
-			dense.push_back(value);
+			dense.push_back(std::move(value));
 
 			if (idx >= sparse.size()) sparse.resize(idx + 1, NONE);
 			sparse.at(idx) = entities.size() - 1;
@@ -38,7 +38,7 @@ namespace ecs {
 			uint32_t idx = sparse[index(e)];
 			uint32_t last = static_cast<uint32_t>(size() - 1);
 
-			dense[idx] = dense[last];
+			dense[idx] = std::move(dense[last]);
 			entities[idx] = entities[last];
 			sparse[index(entities[idx])] = idx;
 
