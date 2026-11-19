@@ -13,6 +13,7 @@
 
 
 
+
 using Clock = std::chrono::steady_clock;
 auto seconds = [](auto d) { return std::chrono::duration<float>(d).count(); };
 
@@ -20,6 +21,7 @@ auto seconds = [](auto d) { return std::chrono::duration<float>(d).count(); };
 int main() {
     ecs::World w;
     ecs::Scheduler scheduler;
+    ecs::platform::addWindowSystems(scheduler);
     game::addGameplaySystems(scheduler);
 
     ecs::Entity e = w.create();
