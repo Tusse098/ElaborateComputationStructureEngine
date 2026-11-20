@@ -9,15 +9,14 @@
 #include "./core/systems/all.h"
 #include <ecs/platform/window.h>
 #include <ecs/platform/debugging/debug.h>
-
-
-
-
+#include <ecs/platform/input.h>
 
 using Clock = std::chrono::steady_clock;
 auto seconds = [](auto d) { return std::chrono::duration<float>(d).count(); };
 
+
 #define TOTALTICKS 1000
+
 int main() {
     ecs::World w;
     ecs::Scheduler scheduler;
@@ -32,8 +31,20 @@ int main() {
             .w = 640,
             .h = 480,
         });
+
+    w.setResource<ecs::platform::Input>(ecs::platform::Input{});
+
+
+    while (true) {
+        scheduler.tick(w, 1.0f / 60);                                   // poll → playground → apply
+
+        auto& input = w.resource<ecs::platform::Input>();
+
+
+    }
+
  
-    ecs::platform::debug::printWindowDesc(windowDesc);
+    //ecs::platform::debug::printWindowDesc(windowDesc);
 
     //ecs::platform::applyWindows(w, 1);
 

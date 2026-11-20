@@ -23,8 +23,10 @@ namespace ecs::platform {
 			SDL_SetNumberProperty(SDL_GetWindowProperties(window), kEntityProp, e); // To store the entityId for O(1) lookup of the OsWindows
 		});
 
-		for (auto& p : created)
+		for (auto& p : created) {
 			w.add(p.e, OsWindow{ p.window, p.renderer });
+			//w.add(p.e, WindowState{});
+		}
 	}
 
 	void pollWindows(World& w, float dt) {
@@ -34,7 +36,11 @@ namespace ecs::platform {
 
 		Input& input = w.resource<Input>();
 
+		for (bool& b : input.mousePressed)  b = false;
+		for (bool& b : input.mouseReleased) b = false;
+
 		while(SDL_PollEvent(&event)) {
+			Entity entity = entityFor(event.motion.windowID);
 			switch(event.type){
 				case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 					int b = event.button.button - 1;
@@ -48,9 +54,8 @@ namespace ecs::platform {
 				}
 				case SDL_EVENT_MOUSE_MOTION:
 					input.mouseX = event.motion.x; input.mouseY = event.motion.y;
-					input.mouseWindow = entityFor(event.motion.windowID);     // the property lookup
+					input.mouseWindow = entity;     // the property lookup
 					break;
-				
 			}
 		}
 		//SDL_Window* win = SDL_GetWindowFromID(ev.window.windowID);          // SDL's own O(1) lookup
