@@ -58,6 +58,11 @@ namespace ecs::platform {
 					break;
 			}
 		}
+
+		//while()
+		
+
+
 		//SDL_Window* win = SDL_GetWindowFromID(ev.window.windowID);          // SDL's own O(1) lookup
 		//if (!win) continue;                                                 // destroyed; events still in flight
 		

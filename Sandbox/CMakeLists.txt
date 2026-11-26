@@ -13,7 +13,7 @@
 find_package(SDL3 REQUIRED CONFIG)
 add_executable(Sandbox
     src/main.cpp
- "src/core/systems/movement.h" "src/core/systems/movement.cpp" "src/core/systems/all.cpp" "src/core/systems/spawner.h" "src/core/systems/spawner.cpp" "src/core/systems/all.h" "src/core/systems/windowPlayground.h" "src/core/systems/windowPlayground.cpp")
+ "src/core/systems/movement.h" "src/core/systems/movement.cpp" "src/core/systems/all.cpp" "src/core/systems/spawner.h" "src/core/systems/spawner.cpp" "src/core/systems/all.h" "src/core/systems/windowPlayground.h" "src/core/systems/windowPlayground.cpp" "src/core/rendering/blinking.cpp" "src/core/rendering/blinking.h" "src/core/rendering/mainRendering.h" "src/core/rendering/mainRendering.cpp")
 target_link_libraries(Sandbox
     PRIVATE ECSPlatform
 )

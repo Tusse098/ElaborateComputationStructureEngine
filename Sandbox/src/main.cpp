@@ -19,13 +19,16 @@ auto seconds = [](auto d) { return std::chrono::duration<float>(d).count(); };
 
 int main() {
     ecs::World w;
-    ecs::Scheduler scheduler;
-    ecs::platform::addWindowSystems(scheduler);
-    game::addGameplaySystems(scheduler);
+    ecs::Scheduler gameScheduler;
+    ecs::Scheduler rendererScheduler;
+
+
+    game::addGameplaySystems(gameScheduler);
+    ecs::platform::addWindowSystems(rendererScheduler);
 
     ecs::Entity e = w.create();
     ecs::platform::WindowDesc windowDesc = w.add<ecs::platform::WindowDesc>(e, ecs::platform::WindowDesc {
-            .title = "ECSE",
+            .title = "Start",
             .x = 200,
             .y = 150,
             .w = 640,
@@ -36,11 +39,11 @@ int main() {
 
 
     while (true) {
-        scheduler.tick(w, 1.0f / 60);                                   // poll → playground → apply
+        gameScheduler.tick(w, 1.0f / 60);                                   // poll → playground → apply
 
         auto& input = w.resource<ecs::platform::Input>();
 
-
+        rendererScheduler.tick(w, 1.0f / 60);
     }
 
  
